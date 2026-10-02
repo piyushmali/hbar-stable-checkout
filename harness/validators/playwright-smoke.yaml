@@ -6,6 +6,9 @@ server:
   timeoutMs: 120000
 defaults:
   timeoutMs: 30000
+  # The scaffold's burner wallet starts with an address the mirror node has never seen, and the address input looks
+  # it up; browsers log that expected 404 as a console error. Rendering and forbidden text are still enforced.
+  failOnConsoleError: false
 routes:
   - name: home
     path: /

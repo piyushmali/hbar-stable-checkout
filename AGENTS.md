@@ -147,6 +147,7 @@ because Hardhat has no relay doing the weibar conversion.
 - Hedera agent skills: `npx skills add hedera-dev/hedera-skills --all`
   ([hedera-skills](https://github.com/hedera-dev/hedera-skills)). Relevant here: `hts-system-contract`,
   `hedera-consensus-service`, `chainlink-data-feeds`, `pyth-price-feeds`, `supra-push-oracle`.
-- Harness: `harness/spec.yaml` drives [hedera-harness](https://github.com/hedera-dev/hedera-harness). Check the recipe
-  with `npx hedera-harness@1.2.2 doctor harness/spec.yaml --recipe-only`, then run the deterministic tiers and the
-  Playwright route gate with `npx hedera-harness@1.2.2 validate harness/spec.yaml` (Tier 2 needs `playwright`).
+- Harness: `harness/spec.yaml` drives [hedera-harness](https://github.com/hedera-dev/hedera-harness). Install it at the
+  project root with `yarn add -D hedera-harness@1.2.2 playwright` (Tier 2 resolves Playwright from there), check the
+  recipe with `yarn hedera-harness doctor harness/spec.yaml --recipe-only`, then run `yarn hedera-harness validate
+  harness/spec.yaml`: files, static assertions, secret scan, the CI commands and a Playwright route gate.

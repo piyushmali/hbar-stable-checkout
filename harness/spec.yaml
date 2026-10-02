@@ -1,11 +1,13 @@
 # hedera-harness recipe for this template (https://github.com/hedera-dev/hedera-harness).
 # Paths are relative to the project root, the parent of this directory.
 #
-#   npx hedera-harness@1.2.2 doctor harness/spec.yaml --recipe-only
-#   npx hedera-harness@1.2.2 validate harness/spec.yaml
+#   yarn add -D hedera-harness@1.2.2 playwright
+#   yarn hedera-harness doctor harness/spec.yaml --recipe-only
+#   yarn hedera-harness validate harness/spec.yaml
 #
-# validate runs Tier 0-1 (files, static assertions, secret scan, yarn commands) and the Tier 2 Playwright
-# gate, which needs `playwright` installed (npm i -D playwright) and a local Chrome or Chromium.
+# validate runs Tier 0-1 (files, static assertions, secret scan, yarn commands) and the Tier 2 Playwright route
+# gate with a local Chrome or Chromium. Tier 2 loads Playwright from the project root, so install both packages
+# there; `npx hedera-harness@1.2.2` is enough for doctor and Tier 0-1.
 schemaVersion: 2
 name: hbar-stable-checkout
 description: >-

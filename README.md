@@ -106,6 +106,9 @@ your own topic (step 4), because only the topic's submit key can write to it.
 | `yarn next:dev` / `yarn next:build` | Run or build the Next.js app |
 | `yarn lint` · `yarn format` · `yarn typecheck` · `yarn test` · `yarn build` | Repo-wide quality gates |
 
+[`harness/`](harness/spec.yaml) holds a [hedera-harness](https://github.com/hedera-dev/hedera-harness) recipe for tiered
+validation of the same gates plus a browser route check; [AGENTS.md](AGENTS.md#skills-and-validators) shows how to run it.
+
 ## Environment variables
 
 Only the `.env.example` files are committed. `.env*` files are gitignored everywhere.

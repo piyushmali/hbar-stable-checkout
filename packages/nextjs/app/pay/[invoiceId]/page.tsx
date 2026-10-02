@@ -119,7 +119,8 @@ const Checkout = ({ invoiceId }: { invoiceId: Hex }) => {
     functionName: "previewPay",
     args: [invoiceId, tinybars],
   });
-  const { data: association } = useUsdcAssociation(profile?.[0], usdc);
+  // Only an open invoice needs the payout check; this also skips the zero address of an unknown invoice.
+  const { data: association } = useUsdcAssociation(status === OPEN ? profile?.[0] : undefined, usdc);
   const { writeContractAsync, isMining } = useScaffoldWriteContract({ contractName: "StableCheckout" });
 
   if (!invoice) return <span className="loading loading-dots" aria-label="Loading invoice" />;
