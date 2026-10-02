@@ -4,7 +4,7 @@ import React, { useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bars3Icon, BugAntIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
+import { Bars3Icon, BugAntIcon, BuildingStorefrontIcon, ReceiptPercentIcon } from "@heroicons/react/24/outline";
 import { RainbowKitCustomConnectButton } from "~~/components/scaffold-hbar";
 import { useOutsideClick } from "~~/hooks/scaffold-hbar";
 
@@ -20,14 +20,19 @@ export const menuLinks: HeaderMenuLink[] = [
     href: "/",
   },
   {
+    label: "Merchant",
+    href: "/merchant",
+    icon: <BuildingStorefrontIcon className="h-4 w-4" />,
+  },
+  {
+    label: "Receipts",
+    href: "/receipts",
+    icon: <ReceiptPercentIcon className="h-4 w-4" />,
+  },
+  {
     label: "Debug Contracts",
     href: "/debug",
     icon: <BugAntIcon className="h-4 w-4" />,
-  },
-  {
-    label: "Block Explorer",
-    href: "/blockexplorer",
-    icon: <MagnifyingGlassIcon className="h-4 w-4" />,
   },
 ];
 
@@ -88,9 +93,9 @@ export const Header = () => {
             <Image alt="Hedera icon" className="cursor-pointer hidden dark:block" fill src="/Hedera-Icon-White.svg" />
           </div>
           <div className="flex flex-col">
-            <span className="font-bold leading-tight text-base">Scaffold-HBAR</span>
+            <span className="font-bold leading-tight text-base">Stable Checkout</span>
             <span className="text-[10px] tracking-wider uppercase text-base-content/50 font-medium">
-              Built on Hedera
+              Pay in HBAR, settle in USDC
             </span>
           </div>
         </Link>

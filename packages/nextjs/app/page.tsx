@@ -1,150 +1,114 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
-import { HederaPortalFaucet } from "@scaffold-hbar-ui/components";
+import { useQuery } from "@tanstack/react-query";
 import type { NextPage } from "next";
-import { useAccount } from "wagmi";
-import { BugAntIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
-import { HederaAddress } from "~~/components/scaffold-hbar";
-import { useTargetNetwork } from "~~/hooks/scaffold-hbar";
+
+const REPO = "https://github.com/piyushmali/hbar-stable-checkout";
+
+const STEPS = [
+  {
+    title: "Customer pays HBAR",
+    body: "The checkout link quotes the invoice in HBAR from the Chainlink HBAR/USD feed, plus a 1% buffer.",
+  },
+  {
+    title: "Contract swaps on SaucerSwap",
+    body: "StableCheckout swaps the HBAR to USDC in the same transaction. If the pool pays less than the Chainlink floor, it reverts.",
+  },
+  {
+    title: "Merchant gets USDC, plus a receipt",
+    body: "USDC lands in the merchant's payout account and a receipt is written to an HCS topic anyone can audit.",
+  },
+];
+
+const DOCS = [
+  { label: "Quickstart", href: `${REPO}#quickstart` },
+  { label: "How the oracle floor works", href: `${REPO}#how-it-works` },
+  { label: "Integration notes", href: `${REPO}#integration-notes` },
+  { label: "Architecture", href: `${REPO}/blob/main/docs/architecture.md` },
+];
+
+type Health = { ok: boolean; network: string; contract: string | null; topicId: string | null };
 
 const Home: NextPage = () => {
-  const { address: connectedAddress, status } = useAccount();
-  const { targetNetwork } = useTargetNetwork();
-
-  const isReconnecting = status === "reconnecting" || status === "connecting";
-  const isConnected = status === "connected" && connectedAddress;
+  const { data: health } = useQuery<Health>({
+    queryKey: ["health"],
+    queryFn: async () => (await fetch("/api/health")).json(),
+  });
 
   return (
-    <>
-      <div className="flex items-center flex-col grow">
-        <div className="hedera-gradient dark:bg-none dark:bg-hedera-charcoal w-full py-16 px-5">
-          <div className="flex flex-col items-center max-w-2xl mx-auto">
-            <Image
-              src="/Hedera-Icon-White.svg"
-              alt="Hedera icon"
-              width={80}
-              height={80}
-              className="mb-6 hidden dark:block"
-            />
-            <Image src="/Hedera-Icon-Dark.svg" alt="Hedera icon" width={80} height={80} className="mb-6 dark:hidden" />
-            <div className="flex flex-col items-center gap-1 mb-4">
-              <span className="block text-lg font-medium tracking-widest uppercase text-white/80 dark:text-white/60">
-                Built on Hedera
-              </span>
-              <span className="block text-lg font-medium tracking-widest uppercase text-white/80 dark:text-white/60">
-                For
-              </span>
-              <Image
-                src="/Hedera-Wordmark-Lockup-White.svg"
-                alt="Hedera"
-                width={240}
-                height={48}
-                className="mt-1 hidden dark:block"
-              />
-              <Image
-                src="/Hedera-Wordmark-Lockup-Dark.svg"
-                alt="Hedera"
-                width={240}
-                height={48}
-                className="mt-1 dark:hidden"
-              />
-            </div>
-          </div>
+    <div className="mx-auto flex w-full max-w-4xl flex-col gap-10 px-5 py-12">
+      <section className="flex flex-col gap-4">
+        <h1 className="m-0 text-4xl font-bold">Accept HBAR, settle in USDC</h1>
+        <p className="m-0 max-w-2xl text-lg opacity-80">
+          A Scaffold-HBAR template for merchant checkout on Hedera. Customers pay in HBAR, merchants receive USDC in the
+          same transaction, a Chainlink price floor protects them from thin pools, and every payment leaves a public
+          receipt on Hedera Consensus Service.
+        </p>
+        <div className="flex flex-wrap gap-3">
+          <Link href="/merchant" className="btn btn-primary">
+            Create an invoice
+          </Link>
+          <Link href="/receipts" className="btn">
+            Browse receipts
+          </Link>
         </div>
+      </section>
 
-        <div className="w-full max-w-4xl mx-auto px-5 -mt-8">
-          <div className="bg-base-100 rounded-2xl shadow-lg p-8">
-            {isReconnecting ? (
-              <div className="flex flex-col items-center gap-2">
-                <p className="font-semibold text-sm text-base-content/60 uppercase tracking-wider m-0">Connecting…</p>
-                <div className="h-8 w-48 rounded bg-base-200 animate-pulse" aria-hidden />
+      <section aria-labelledby="flow-heading">
+        <h2 id="flow-heading" className="mb-4 mt-0 text-xl font-semibold">
+          How a payment flows
+        </h2>
+        <ol className="m-0 grid list-none grid-cols-1 gap-4 p-0 md:grid-cols-3">
+          {STEPS.map((step, index) => (
+            <li key={step.title} className="card border border-base-300 bg-base-100">
+              <div className="card-body gap-2">
+                <span className="badge badge-primary" aria-hidden>
+                  {index + 1}
+                </span>
+                <h3 className="m-0 font-semibold">{step.title}</h3>
+                <p className="m-0 text-sm opacity-80">{step.body}</p>
               </div>
-            ) : isConnected ? (
-              <div className="flex flex-col items-center gap-2">
-                <p className="font-semibold text-sm text-base-content/60 uppercase tracking-wider m-0">
-                  Connected Address
-                </p>
-                <HederaAddress address={connectedAddress} chain={targetNetwork} />
-              </div>
-            ) : (
-              <div className="flex flex-col items-center gap-2">
-                <p className="font-semibold text-sm text-base-content/60 uppercase tracking-wider m-0">
-                  Connect your wallet to get started
-                </p>
-              </div>
-            )}
-          </div>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section aria-labelledby="status-heading" className="card border border-base-300 bg-base-100">
+        <div className="card-body gap-3">
+          <h2 id="status-heading" className="card-title m-0">
+            This app
+          </h2>
+          <dl className="m-0 grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
+            <dt className="opacity-70">Network</dt>
+            <dd className="m-0">Hedera {health?.network ?? "…"}</dd>
+            <dt className="opacity-70">StableCheckout</dt>
+            <dd className="m-0 break-all font-mono text-xs">
+              {health ? (health.contract ?? "not deployed: run yarn hardhat:deploy --network hederaTestnet") : "…"}
+            </dd>
+            <dt className="opacity-70">Receipt topic</dt>
+            <dd className="m-0 font-mono text-xs">
+              {health ? (health.topicId ?? "not set: run yarn hardhat:create-topic") : "…"}
+            </dd>
+          </dl>
         </div>
+      </section>
 
-        <div className="w-full max-w-4xl mx-auto px-5 mt-8 pb-16">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-base-100 rounded-2xl shadow-md p-8 text-center flex flex-col items-center hover:shadow-lg transition-shadow border border-base-300">
-              <div className="w-14 h-14 rounded-full hedera-gradient flex items-center justify-center mb-4">
-                <BugAntIcon className="h-7 w-7 text-white" />
-              </div>
-              <h3 className="font-bold text-lg mb-2">Debug Contracts</h3>
-              <p className="text-base-content/70 text-sm m-0 mb-6">
-                Tinker with your smart contracts and test interactions in real time.
-              </p>
-              <Link href="/debug" passHref className="btn btn-primary btn-sm">
-                Open Debug
-              </Link>
-            </div>
-
-            <div className="bg-base-100 rounded-2xl shadow-md p-8 text-center flex flex-col items-center border border-base-300 relative">
-              <div className="w-14 h-14 rounded-full hedera-gradient flex items-center justify-center mb-4">
-                <MagnifyingGlassIcon className="h-7 w-7 text-white" />
-              </div>
-              <h3 className="font-bold text-lg mb-2">Block Explorer</h3>
-              <p className="text-base-content/70 text-sm m-0 mb-6">
-                Explore transactions, addresses, and contract activity on Hedera.
-              </p>
-              <Link href="/blockexplorer" passHref className="btn btn-primary btn-sm">
-                Open Block Explorer
-              </Link>
-            </div>
-          </div>
-
-          <div className="mt-8 bg-base-100 rounded-2xl shadow-md p-8 border border-base-300">
-            <h3 className="font-bold text-lg mb-4 text-center">Quick Start</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-              <div className="flex items-start gap-3">
-                <span className="font-bold text-primary text-lg leading-none mt-0.5">1</span>
-                <div>
-                  <p className="m-0 font-medium">Edit the frontend</p>
-                  <code className="text-xs bg-base-200 px-2 py-1 rounded">packages/nextjs/app/page.tsx</code>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <span className="font-bold text-primary text-lg leading-none mt-0.5">2</span>
-                <div>
-                  <p className="m-0 font-medium">Edit your contracts</p>
-                  <code className="text-xs bg-base-200 px-2 py-1 rounded">packages/hardhat/contracts</code>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <span className="font-bold text-primary text-lg leading-none mt-0.5">3</span>
-                <div>
-                  <p className="m-0 font-medium">Get testnet HBAR</p>
-                  <HederaPortalFaucet variant="link" label="portal.hedera.com/faucet" showIcon={false} />
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <span className="font-bold text-primary text-lg leading-none mt-0.5">4</span>
-                <div>
-                  <p className="m-0 font-medium">Deploy to Hedera</p>
-                  <code className="text-xs bg-base-200 px-2 py-1 rounded">
-                    yarn hardhat:deploy --network hederaTestnet
-                  </code>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </>
+      <section aria-labelledby="docs-heading">
+        <h2 id="docs-heading" className="mb-3 mt-0 text-xl font-semibold">
+          Docs
+        </h2>
+        <ul className="m-0 flex list-none flex-wrap gap-3 p-0">
+          {DOCS.map(doc => (
+            <li key={doc.href}>
+              <a className="link" href={doc.href} target="_blank" rel="noreferrer">
+                {doc.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    </div>
   );
 };
 

@@ -1393,7 +1393,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@hiero-ledger/sdk@npm:^2.80.0":
+"@hiero-ledger/sdk@npm:2.80.0, @hiero-ledger/sdk@npm:^2.80.0":
   version: 2.80.0
   resolution: "@hiero-ledger/sdk@npm:2.80.0"
   dependencies:
@@ -3183,6 +3183,7 @@ __metadata:
     "@ethersproject/abi": ~5.7.0
     "@ethersproject/providers": ~5.7.2
     "@hashgraph/system-contracts-forking": 0.1.2
+    "@hiero-ledger/sdk": 2.80.0
     "@inquirer/password": ^4.0.2
     "@nomicfoundation/hardhat-chai-matchers": ~2.0.7
     "@nomicfoundation/hardhat-ethers": ~3.0.8
@@ -3256,6 +3257,7 @@ __metadata:
     usehooks-ts: ^3.1.0
     viem: 2.39.0
     wagmi: 2.19.5
+    zod: 3.25.76
     zustand: ^5.0.0
   languageName: unknown
   linkType: soft
@@ -15295,7 +15297,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"zod@npm:^3.24.4":
+"zod@npm:3.25.76, zod@npm:^3.24.4":
   version: 3.25.76
   resolution: "zod@npm:3.25.76"
   checksum: c9a403a62b329188a5f6bd24d5d935d2bba345f7ab8151d1baa1505b5da9f227fb139354b043711490c798e91f3df75991395e40142e6510a4b16409f302b849

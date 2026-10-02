@@ -9,6 +9,8 @@
     ]
   },
   "scripts": {
+    "build": "yarn hardhat:compile && yarn next:build",
+    "fork:test": "yarn workspace @sh/hardhat fork:test",
     "format": "yarn next:format && yarn hardhat:format",
     "hardhat:account": "yarn workspace @sh/hardhat account",
     "hardhat:account:generate": "yarn workspace @sh/hardhat account:generate",
@@ -18,6 +20,8 @@
     "hardhat:check-types": "yarn workspace @sh/hardhat check-types",
     "hardhat:clean": "yarn workspace @sh/hardhat clean",
     "hardhat:compile": "yarn workspace @sh/hardhat compile",
+    "hardhat:create-topic": "yarn workspace @sh/hardhat create-topic",
+    "hardhat:demo-pay": "yarn workspace @sh/hardhat demo:pay",
     "hardhat:deploy": "yarn workspace @sh/hardhat deploy",
     "hardhat:flatten": "yarn workspace @sh/hardhat flatten",
     "hardhat:fork": "yarn workspace @sh/hardhat fork",
@@ -34,6 +38,8 @@
     "next:lint": "yarn workspace @sh/nextjs lint",
     "next:serve": "yarn workspace @sh/nextjs serve",
     "next:start": "yarn workspace @sh/nextjs start",
+    "test": "yarn hardhat:test",
+    "typecheck": "yarn hardhat:compile && yarn hardhat:check-types && yarn next:check-types",
     "postinstall": "husky",
     "precommit": "lint-staged",
     "lint-staged": "lint-staged"

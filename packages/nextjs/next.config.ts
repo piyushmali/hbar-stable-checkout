@@ -3,6 +3,8 @@ import path from "path";
 
 const nextConfig: NextConfig = {
   outputFileTracingRoot: path.join(__dirname, "../.."),
+  // The Hiero SDK (gRPC to consensus nodes) runs in the receipts route; load it from node_modules, unbundled.
+  serverExternalPackages: ["@hiero-ledger/sdk"],
   reactStrictMode: true,
   devIndicators: false,
   typescript: {
