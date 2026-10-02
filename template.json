@@ -11,6 +11,29 @@
       "frontend": "nextjs-app",
       "solidityFramework": "hardhat",
       "packageManager": "yarn"
+    },
+    "outro": {
+      "sections": [
+        {
+          "title": "Next steps",
+          "steps": [
+            { "label": "Run the contract tests (no network needed)", "command": "{run:framework:test}" },
+            {
+              "label": "Add an ECDSA testnet key",
+              "text": "Copy packages/hardhat/.env.example to packages/hardhat/.env and set DEPLOYER_PRIVATE_KEY, HEDERA_OPERATOR_ID and HEDERA_OPERATOR_KEY."
+            },
+            { "label": "Deploy StableCheckout", "command": "{run:framework:deploy} --network hederaTestnet" },
+            { "label": "Create the HCS receipt topic", "command": "{run:framework:create-topic}" },
+            {
+              "label": "Configure the web app",
+              "text": "Copy packages/nextjs/.env.example to packages/nextjs/.env.local and set HCS_TOPIC_ID and the same operator."
+            },
+            { "label": "Start the app", "command": "{run:next:dev}" },
+            { "label": "Pay a real testnet invoice", "command": "{run:framework:demo-pay}" },
+            { "text": "README.md covers the oracle math, HTS association, receipts and troubleshooting." }
+          ]
+        }
+      ]
     }
   }
 }

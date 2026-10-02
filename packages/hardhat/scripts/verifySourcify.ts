@@ -5,8 +5,8 @@ import * as path from "path";
  * Verifies a deployed contract on Sourcify (API v2) — the Hedera-supported verifier.
  *
  * Usage:
- *   yarn verify:contract -- HederaToken testnet [0xAddress]
- *   yarn verify:contract -- HederaToken mainnet [0xAddress]
+ *   yarn verify:contract -- StableCheckout testnet [0xAddress]
+ *   yarn verify:contract -- StableCheckout mainnet [0xAddress]
  * If the address is omitted, it is read from deployments/<network>/<Contract>.json.
  */
 
