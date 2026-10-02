@@ -1,0 +1,6 @@
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Vendored Yarn release: minified code that trips generic-api-key, not credentials"
+paths = ['''^\.yarn/releases/''']

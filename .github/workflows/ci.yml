@@ -1,0 +1,78 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  scaffold-gate:
+    name: Fresh scaffold gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      # The judges' command, pointed at the commit under test. Pull requests use their head branch.
+      TEMPLATE: ${{ github.event.pull_request.head.repo.full_name || github.repository }}#${{ github.head_ref || github.ref_name }}
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Git identity for the CLI's initial commit
+        run: |
+          git config --global user.name "ci"
+          git config --global user.email "ci@users.noreply.github.com"
+
+      - name: Scaffold from the template
+        run: npm create scaffold-hbar@latest ci-app -- --template "$TEMPLATE" --yes --skip-hedera-skills --skip-install
+
+      - name: Check the CLI honoured template.json
+        # Without a readable template.json the CLI defaults to Foundry and deletes packages/hardhat.
+        run: test -f ci-app/packages/hardhat/contracts/StableCheckout.sol && test ! -e ci-app/template.json
+
+      - name: Install
+        working-directory: ci-app
+        run: yarn install
+
+      - name: Lint
+        working-directory: ci-app
+        run: yarn lint
+
+      - name: Contract tests
+        working-directory: ci-app
+        run: yarn hardhat:test
+
+      - name: Build
+        working-directory: ci-app
+        run: yarn next:build
+
+      - name: Boot the app and check routes
+        working-directory: ci-app
+        run: |
+          yarn next:serve -p 3000 > next.log 2>&1 &
+          for _ in $(seq 1 30); do curl -sf -o /dev/null http://localhost:3000/api/health && break; sleep 2; done
+          invoice="0x$(printf 'ab%.0s' $(seq 1 32))"
+          for route in / /merchant "/pay/$invoice" /receipts /api/health; do
+            status=$(curl -s -o /dev/null -w '%{http_code}' "http://localhost:3000$route")
+            echo "$route -> $status"
+            if [ "$status" != "200" ]; then cat next.log; exit 1; fi
+          done
+          curl -s http://localhost:3000/api/health
+
+  secret-scan:
+    name: Secret scan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

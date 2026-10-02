@@ -25,11 +25,9 @@ const fork =
     : { url: process.env.HEDERA_RPC_URL || "https://testnet.hashio.io/api", chainId: 296 };
 
 // Deployer key: DEPLOYER_PRIVATE_KEY in .env (ECDSA, 0x-prefixed), or the encrypted key from `yarn account:generate`,
-// decrypted at deploy time into __RUNTIME_DEPLOYER_PRIVATE_KEY. Falls back to Hardhat's first dev account.
-const deployerPrivateKey =
-  process.env.__RUNTIME_DEPLOYER_PRIVATE_KEY ||
-  process.env.DEPLOYER_PRIVATE_KEY ||
-  "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
+// decrypted at deploy time into __RUNTIME_DEPLOYER_PRIVATE_KEY. Live networks get no account without one.
+const deployerKey = process.env.__RUNTIME_DEPLOYER_PRIVATE_KEY || process.env.DEPLOYER_PRIVATE_KEY;
+const liveAccounts = deployerKey ? [deployerKey] : [];
 
 const config: HardhatUserConfig = {
   solidity: {
@@ -64,12 +62,12 @@ const config: HardhatUserConfig = {
       : {},
     hederaTestnet: {
       url: process.env.HEDERA_RPC_URL || "https://testnet.hashio.io/api",
-      accounts: [deployerPrivateKey],
+      accounts: liveAccounts,
       chainId: 296,
     },
     hederaMainnet: {
       url: process.env.HEDERA_MAINNET_RPC_URL || "https://mainnet.hashio.io/api",
-      accounts: [deployerPrivateKey],
+      accounts: liveAccounts,
       chainId: 295,
     },
   },
