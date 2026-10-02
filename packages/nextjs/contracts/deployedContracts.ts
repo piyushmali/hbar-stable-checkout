@@ -4,6 +4,870 @@
  */
 import { GenericContractsDeclaration } from "~~/utils/scaffold-hbar/contract";
 
-const deployedContracts = {} as const;
+const deployedContracts = {
+  296: {
+    StableCheckout: {
+      address: "0x022c216E7532FC28382ECae7b8C077fc68d54da9",
+      abi: [
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "router_",
+              type: "address",
+            },
+            {
+              internalType: "address",
+              name: "priceFeed_",
+              type: "address",
+            },
+            {
+              internalType: "address",
+              name: "whbar_",
+              type: "address",
+            },
+            {
+              internalType: "address",
+              name: "usdc_",
+              type: "address",
+            },
+            {
+              internalType: "uint32",
+              name: "maxPriceAge_",
+              type: "uint32",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "constructor",
+        },
+        {
+          inputs: [],
+          name: "AlreadyRegistered",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "int64",
+              name: "responseCode",
+              type: "int64",
+            },
+          ],
+          name: "AssociationFailed",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "IncompleteRound",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "InvalidAmount",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "InvalidExpiry",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint32",
+              name: "maxPriceAge",
+              type: "uint32",
+            },
+          ],
+          name: "InvalidMaxPriceAge",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "InvalidPayout",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "int256",
+              name: "answer",
+              type: "int256",
+            },
+          ],
+          name: "InvalidPrice",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "bytes32",
+              name: "invoiceId",
+              type: "bytes32",
+            },
+          ],
+          name: "InvoiceExists",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "bytes32",
+              name: "invoiceId",
+              type: "bytes32",
+            },
+            {
+              internalType: "uint64",
+              name: "expiry",
+              type: "uint64",
+            },
+          ],
+          name: "InvoiceExpired",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "bytes32",
+              name: "invoiceId",
+              type: "bytes32",
+            },
+          ],
+          name: "InvoiceNotFound",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "bytes32",
+              name: "invoiceId",
+              type: "bytes32",
+            },
+          ],
+          name: "InvoiceNotOpen",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "NotMerchant",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "owner",
+              type: "address",
+            },
+          ],
+          name: "OwnableInvalidOwner",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "account",
+              type: "address",
+            },
+          ],
+          name: "OwnableUnauthorizedAccount",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "payout",
+              type: "address",
+            },
+          ],
+          name: "PayoutNotAssociated",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "poolUsdc",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "minUsdcOut",
+              type: "uint256",
+            },
+          ],
+          name: "PoolBelowFloor",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "ReentrancyGuardReentrantCall",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint8",
+              name: "bits",
+              type: "uint8",
+            },
+            {
+              internalType: "int256",
+              name: "value",
+              type: "int256",
+            },
+          ],
+          name: "SafeCastOverflowedIntDowncast",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "value",
+              type: "uint256",
+            },
+          ],
+          name: "SafeCastOverflowedUintToInt",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "int64",
+              name: "responseCode",
+              type: "int64",
+            },
+          ],
+          name: "SettlementFailed",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint16",
+              name: "maxSlippageBps",
+              type: "uint16",
+            },
+          ],
+          name: "SlippageTooHigh",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "updatedAt",
+              type: "uint256",
+            },
+            {
+              internalType: "uint32",
+              name: "maxPriceAge",
+              type: "uint32",
+            },
+          ],
+          name: "StalePrice",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "oracleUsdc",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "invoiceUsdc",
+              type: "uint256",
+            },
+          ],
+          name: "Underpaid",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint8",
+              name: "decimals",
+              type: "uint8",
+            },
+          ],
+          name: "UnsupportedTokenDecimals",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "ZeroAddress",
+          type: "error",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "bytes32",
+              name: "invoiceId",
+              type: "bytes32",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "merchant",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "usdAmount6",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint64",
+              name: "expiry",
+              type: "uint64",
+            },
+          ],
+          name: "InvoiceCreated",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "bytes32",
+              name: "invoiceId",
+              type: "bytes32",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "merchant",
+              type: "address",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "payer",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "hbarIn",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "usdcOut",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "oraclePrice",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "timestamp",
+              type: "uint256",
+            },
+          ],
+          name: "InvoicePaid",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: false,
+              internalType: "uint32",
+              name: "maxPriceAge",
+              type: "uint32",
+            },
+          ],
+          name: "MaxPriceAgeUpdated",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "address",
+              name: "merchant",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "address",
+              name: "payout",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint16",
+              name: "maxSlippageBps",
+              type: "uint16",
+            },
+          ],
+          name: "MerchantRegistered",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "address",
+              name: "merchant",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "address",
+              name: "payout",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint16",
+              name: "maxSlippageBps",
+              type: "uint16",
+            },
+          ],
+          name: "MerchantUpdated",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "address",
+              name: "previousOwner",
+              type: "address",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "newOwner",
+              type: "address",
+            },
+          ],
+          name: "OwnershipTransferred",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "address",
+              name: "token",
+              type: "address",
+            },
+          ],
+          name: "SettlementTokenAssociated",
+          type: "event",
+        },
+        {
+          inputs: [],
+          name: "HTS",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "MAX_PRICE_AGE_LIMIT",
+          outputs: [
+            {
+              internalType: "uint32",
+              name: "",
+              type: "uint32",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "MAX_SLIPPAGE_BPS",
+          outputs: [
+            {
+              internalType: "uint16",
+              name: "",
+              type: "uint16",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "bytes32",
+              name: "invoiceId",
+              type: "bytes32",
+            },
+            {
+              internalType: "uint256",
+              name: "usdAmount6",
+              type: "uint256",
+            },
+            {
+              internalType: "uint64",
+              name: "expiry",
+              type: "uint64",
+            },
+          ],
+          name: "createInvoice",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "bytes32",
+              name: "invoiceId",
+              type: "bytes32",
+            },
+          ],
+          name: "invoiceOf",
+          outputs: [
+            {
+              internalType: "address",
+              name: "merchant",
+              type: "address",
+            },
+            {
+              internalType: "uint256",
+              name: "usdAmount6",
+              type: "uint256",
+            },
+            {
+              internalType: "uint64",
+              name: "expiry",
+              type: "uint64",
+            },
+            {
+              internalType: "enum StableCheckout.InvoiceStatus",
+              name: "status",
+              type: "uint8",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "latestPrice",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "price",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "updatedAt",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "maxPriceAge",
+          outputs: [
+            {
+              internalType: "uint32",
+              name: "",
+              type: "uint32",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "merchant",
+              type: "address",
+            },
+          ],
+          name: "merchants",
+          outputs: [
+            {
+              internalType: "address",
+              name: "payout",
+              type: "address",
+            },
+            {
+              internalType: "uint16",
+              name: "maxSlippageBps",
+              type: "uint16",
+            },
+            {
+              internalType: "bool",
+              name: "registered",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "owner",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "bytes32",
+              name: "invoiceId",
+              type: "bytes32",
+            },
+          ],
+          name: "pay",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "usdcOut",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "payable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "bytes32",
+              name: "invoiceId",
+              type: "bytes32",
+            },
+            {
+              internalType: "uint256",
+              name: "tinybars",
+              type: "uint256",
+            },
+          ],
+          name: "previewPay",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "oracleUsdc",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "minUsdcOut",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "poolUsdc",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "priceFeed",
+          outputs: [
+            {
+              internalType: "contract AggregatorV3Interface",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "usdAmount6",
+              type: "uint256",
+            },
+          ],
+          name: "quoteTinybars",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "tinybars",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "tinybars",
+              type: "uint256",
+            },
+          ],
+          name: "quoteUsdc",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "usdAmount6",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "payout",
+              type: "address",
+            },
+            {
+              internalType: "uint16",
+              name: "maxSlippageBps",
+              type: "uint16",
+            },
+          ],
+          name: "registerMerchant",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "renounceOwnership",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "router",
+          outputs: [
+            {
+              internalType: "contract ISaucerSwapRouter",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint32",
+              name: "maxPriceAge_",
+              type: "uint32",
+            },
+          ],
+          name: "setMaxPriceAge",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "newOwner",
+              type: "address",
+            },
+          ],
+          name: "transferOwnership",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "payout",
+              type: "address",
+            },
+            {
+              internalType: "uint16",
+              name: "maxSlippageBps",
+              type: "uint16",
+            },
+          ],
+          name: "updateMerchant",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "usdc",
+          outputs: [
+            {
+              internalType: "contract IERC20",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "whbar",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+      ],
+      inheritedFunctions: {
+        owner: "@openzeppelin/contracts/access/Ownable.sol",
+        renounceOwnership: "@openzeppelin/contracts/access/Ownable.sol",
+        transferOwnership: "@openzeppelin/contracts/access/Ownable.sol",
+      },
+      deployedOnBlock: 41275920,
+    },
+  },
+} as const;
 
 export default deployedContracts satisfies GenericContractsDeclaration;

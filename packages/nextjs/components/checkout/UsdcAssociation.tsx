@@ -2,18 +2,16 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { type Address, isAddressEqual } from "viem";
-import { useAccount, useWriteContract } from "wagmi";
+import { useAccount, usePublicClient, useWriteContract } from "wagmi";
 import { useTargetNetwork, useTransactor } from "~~/hooks/scaffold-hbar";
-import { HEDERA_NETWORKS } from "~~/utils/checkout";
-import { chainIdToHederaNetwork } from "~~/utils/scaffold-hbar";
+import { HEDERA_NETWORKS, describeCheckoutError, withGasHeadroom } from "~~/utils/checkout";
+import { chainIdToHederaNetwork, notification } from "~~/utils/scaffold-hbar";
 
 const MIRROR_TIMEOUT_MS = 8_000;
 // HIP-719: every HTS token address answers associate() on behalf of the calling account.
 const HRC719_ABI = [
   { type: "function", name: "associate", inputs: [], outputs: [{ type: "uint256" }], stateMutability: "nonpayable" },
 ] as const;
-// The relay's gas estimate misses the HTS association fee. Hedera charges at least 80% of the limit.
-const ASSOCIATE_GAS = 1_000_000n;
 
 export type UsdcAssociation = {
   status: "associated" | "auto-association" | "not-associated" | "no-account";
@@ -69,6 +67,8 @@ export function useUsdcAssociation(account: Address | undefined, token: Address 
 /** Association status of a payout account, with a one-click HIP-719 associate() when it is the connected wallet. */
 export const UsdcAssociationStatus = ({ account, token }: { account?: Address; token?: Address }) => {
   const { address: connected } = useAccount();
+  const { targetNetwork } = useTargetNetwork();
+  const publicClient = usePublicClient({ chainId: targetNetwork.id });
   const { data, isLoading, isError, refetch } = useUsdcAssociation(account, token);
   const writeTx = useTransactor();
   const { writeContractAsync, isPending } = useWriteContract();
@@ -89,10 +89,17 @@ export const UsdcAssociationStatus = ({ account, token }: { account?: Address; t
 
   const isConnectedAccount = connected !== undefined && isAddressEqual(account, connected);
   const associate = async () => {
+    if (!publicClient || !connected) return;
+    const request = { address: token, abi: HRC719_ABI, functionName: "associate", account: connected } as const;
+    let gas: bigint;
     try {
-      await writeTx(() =>
-        writeContractAsync({ address: token, abi: HRC719_ABI, functionName: "associate", gas: ASSOCIATE_GAS }),
-      );
+      gas = withGasHeadroom(await publicClient.estimateContractGas(request));
+    } catch (error) {
+      notification.error(describeCheckoutError(error));
+      return;
+    }
+    try {
+      await writeTx(() => writeContractAsync({ ...request, gas }));
       await refetch();
     } catch {
       // useTransactor already showed the error.

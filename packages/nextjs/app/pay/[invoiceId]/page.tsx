@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useParams } from "next/navigation";
 import type { NextPage } from "next";
 import { type Hex, isHex } from "viem";
-import { useAccount } from "wagmi";
+import { useAccount, usePublicClient } from "wagmi";
 import { DeployFirst } from "~~/components/checkout/DeployFirst";
 import { useUsdcAssociation } from "~~/components/checkout/UsdcAssociation";
 import { HederaAddress, RainbowKitCustomConnectButton } from "~~/components/scaffold-hbar";
@@ -16,7 +17,6 @@ import {
 } from "~~/hooks/scaffold-hbar";
 import {
   type ApiError,
-  PAY_GAS_LIMIT,
   QUOTE_BUFFER_BPS,
   type RecordResult,
   WEIBARS_PER_TINYBAR,
@@ -28,11 +28,13 @@ import {
   hashscanTransactionUrl,
   mirrorContractResultUrl,
   mirrorTopicMessageUrl,
+  withGasHeadroom,
 } from "~~/utils/checkout";
 import { type HederaNetwork, chainIdToHederaNetwork } from "~~/utils/scaffold-hbar";
 
 // InvoiceStatus in StableCheckout.sol
 const OPEN = 1;
+const PAID = 2;
 const STATUS_LABELS = ["Not found", "Open", "Paid", "Expired"];
 const RECEIPT_ATTEMPTS = 6;
 
@@ -83,6 +85,8 @@ const PayPage: NextPage = () => {
 const Checkout = ({ invoiceId }: { invoiceId: Hex }) => {
   const { address } = useAccount();
   const { targetNetwork } = useTargetNetwork();
+  const publicClient = usePublicClient({ chainId: targetNetwork.id });
+  const { data: checkout } = useDeployedContractInfo({ contractName: "StableCheckout" });
   const network = chainIdToHederaNetwork(targetNetwork.id);
   const [txHash, setTxHash] = useState<Hex>();
   const [payError, setPayError] = useState<string>();
@@ -130,26 +134,33 @@ const Checkout = ({ invoiceId }: { invoiceId: Hex }) => {
   const [oracleUsdc, minUsdcOut, poolUsdc] = preview ?? [];
   const poolBelowFloor = poolUsdc !== undefined && minUsdcOut !== undefined && poolUsdc < minUsdcOut;
   const payoutBlocked = association?.status === "not-associated" || association?.status === "no-account";
-  const blocker =
-    status !== OPEN
-      ? `This invoice is ${STATUS_LABELS[Number(status)].toLowerCase()}.`
-      : priceError
-        ? describeCheckoutError(priceError)
-        : poolBelowFloor
-          ? "SaucerSwap currently pays less than the Chainlink floor, so a payment would revert. Try again later."
-          : payoutBlocked
-            ? "The merchant's payout account cannot receive USDC yet (it is not associated with the token)."
-            : undefined;
+  const blocker = priceError
+    ? describeCheckoutError(priceError)
+    : poolBelowFloor
+      ? "SaucerSwap currently pays less than the Chainlink floor, so a payment would revert. Try again later."
+      : payoutBlocked
+        ? "The merchant's payout account cannot receive USDC yet (it is not associated with the token)."
+        : undefined;
 
   const pay = async () => {
-    if (!tinybars) return;
+    if (!tinybars || !address || !publicClient || !checkout) return;
     setPayError(undefined);
+    const value = tinybars * WEIBARS_PER_TINYBAR;
     try {
+      // The relay simulates the swap and the HTS calls. A revert surfaces here, before the wallet opens.
+      const estimate = await publicClient.estimateContractGas({
+        address: checkout.address,
+        abi: checkout.abi,
+        functionName: "pay",
+        args: [invoiceId],
+        value,
+        account: address,
+      });
       const hash = await writeContractAsync({
         functionName: "pay",
         args: [invoiceId],
-        value: tinybars * WEIBARS_PER_TINYBAR,
-        gas: PAY_GAS_LIMIT,
+        value,
+        gas: withGasHeadroom(estimate),
       });
       if (!hash) return;
       setTxHash(hash);
@@ -179,7 +190,7 @@ const Checkout = ({ invoiceId }: { invoiceId: Hex }) => {
           </div>
           <dl className="m-0 grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
             <dt className="opacity-70">Merchant</dt>
-            <dd className="m-0">
+            <dd className="m-0 flex">
               <HederaAddress address={merchant} chain={targetNetwork} />
             </dd>
             <dt className="opacity-70">Expires</dt>
@@ -229,16 +240,37 @@ const Checkout = ({ invoiceId }: { invoiceId: Hex }) => {
       </section>
 
       {txHash ? (
-        <section role="status" className="alert alert-success flex-col items-start gap-2">
-          <p className="m-0 font-semibold">Paid. The merchant received USDC in the same transaction.</p>
-          <a className="link" href={hashscanTransactionUrl(network, txHash)} target="_blank" rel="noreferrer">
-            View the payment on HashScan
-          </a>
-          <a className="link text-sm" href={mirrorContractResultUrl(network, txHash)} target="_blank" rel="noreferrer">
-            Mirror node contract result
-          </a>
-          <ReceiptStatus state={receipt} network={network} />
+        <section role="status" className="alert alert-success">
+          <div className="flex flex-col items-start gap-2">
+            <p className="m-0 font-semibold">Paid. The merchant received USDC in the same transaction.</p>
+            <a className="link" href={hashscanTransactionUrl(network, txHash)} target="_blank" rel="noreferrer">
+              View the payment on HashScan
+            </a>
+            <a
+              className="link text-sm"
+              href={mirrorContractResultUrl(network, txHash)}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Mirror node contract result
+            </a>
+            <ReceiptStatus state={receipt} network={network} />
+          </div>
         </section>
+      ) : status === PAID ? (
+        <div role="status" className="alert alert-success">
+          <span>
+            This invoice has been paid. Its receipt is on the{" "}
+            <Link href="/receipts" className="link">
+              receipts page
+            </Link>
+            .
+          </span>
+        </div>
+      ) : status !== OPEN ? (
+        <div role="status" className="alert alert-warning">
+          This invoice has expired. Ask the merchant for a new checkout link.
+        </div>
       ) : !address ? (
         <div className="flex flex-col items-start gap-2">
           <p className="m-0">Connect a Hedera ECDSA wallet with enough HBAR to pay.</p>
@@ -277,18 +309,17 @@ const ReceiptStatus = ({ state, network }: { state?: ReceiptState; network: Hede
   if (state.phase === "failed") {
     return <p className="m-0 text-sm">The receipt was not recorded: {state.message}</p>;
   }
-  const { result } = state;
-  const sequenceNumber = result.status === "recorded" ? result.sequenceNumber : result.receipt.sequenceNumber;
+  const { topicId, sequenceNumber } = state.result;
   return (
     <p className="m-0 text-sm">
       Receipt #{sequenceNumber} is on HCS topic{" "}
-      <a className="link" href={hashscanTopicUrl(network, result.topicId)} target="_blank" rel="noreferrer">
-        {result.topicId}
+      <a className="link" href={hashscanTopicUrl(network, topicId)} target="_blank" rel="noreferrer">
+        {topicId}
       </a>{" "}
       (
       <a
         className="link"
-        href={mirrorTopicMessageUrl(network, result.topicId, sequenceNumber)}
+        href={mirrorTopicMessageUrl(network, topicId, sequenceNumber)}
         target="_blank"
         rel="noreferrer"
       >

@@ -180,7 +180,7 @@ async function submitReceipt(network: HederaNetwork, topicId: string, receipt: R
       .setMessage(JSON.stringify(receipt))
       .execute(client);
     const { topicSequenceNumber } = await response.getReceipt(client);
-    return { sequenceNumber: Number(topicSequenceNumber), transactionId: response.transactionId.toString() };
+    return Number(topicSequenceNumber);
   } catch (error) {
     console.error("[receipts] HCS submit failed", error instanceof Error ? error.message : error);
     throw new ReceiptError(502, "hcs_submit_failed", "Writing the receipt to the HCS topic failed.");
@@ -197,9 +197,11 @@ async function record(txHash: Hex): Promise<RecordResult> {
   const receipt = await verifyPayment(network, txHash);
   // A receipt can only have been written after its payment reached consensus.
   for await (const existing of topicReceipts(network, topicId, `order=asc&timestamp=gte:${receipt.consensusTs}`)) {
-    if (existing.txHash === receipt.txHash) return { status: "exists", topicId, receipt: existing };
+    if (existing.txHash === receipt.txHash) {
+      return { status: "exists", topicId, receipt, sequenceNumber: existing.sequenceNumber };
+    }
   }
-  return { status: "recorded", topicId, receipt, ...(await submitReceipt(network, topicId, receipt)) };
+  return { status: "recorded", topicId, receipt, sequenceNumber: await submitReceipt(network, topicId, receipt) };
 }
 
 // ponytail: per-process guard for the seconds before the mirror node indexes a fresh message. Other server
@@ -210,7 +212,7 @@ const recent = new Map<string, Promise<RecordResult>>();
 export function recordReceipt(txHash: Hex): Promise<RecordResult> {
   const key = txHash.toLowerCase();
   const cached = recent.get(key);
-  if (cached) return cached;
+  if (cached) return cached.then(result => ({ ...result, status: "exists" }));
   const pending = record(key as Hex);
   recent.set(key, pending);
   pending.then(

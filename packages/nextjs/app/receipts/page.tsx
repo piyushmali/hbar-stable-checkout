@@ -158,13 +158,13 @@ const ReceiptsPage: NextPage = () => {
                 {data.receipts.map(receipt => (
                   <tr key={receipt.txHash}>
                     <td className="whitespace-nowrap">{consensusDate(receipt.consensusTs)}</td>
-                    <td className="font-mono text-xs" title={receipt.invoiceId}>
+                    <td className="whitespace-nowrap font-mono text-xs" title={receipt.invoiceId}>
                       {shorten(receipt.invoiceId)}
                     </td>
-                    <td className="font-mono text-xs" title={receipt.merchant}>
+                    <td className="whitespace-nowrap font-mono text-xs" title={receipt.merchant}>
                       {shorten(receipt.merchant)}
                     </td>
-                    <td className="font-mono text-xs" title={receipt.payer}>
+                    <td className="whitespace-nowrap font-mono text-xs" title={receipt.payer}>
                       {shorten(receipt.payer)}
                     </td>
                     <td className="whitespace-nowrap">{formatHbar(BigInt(receipt.hbarIn))}</td>

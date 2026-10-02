@@ -30,8 +30,11 @@ export const QUOTE_BUFFER_BPS = 100n;
 /** Default merchant slippage. It has to cover SaucerSwap V1's 0.3% LP fee plus oracle drift (up to 0.5%). */
 export const DEFAULT_SLIPPAGE_BPS = 100;
 export const MAX_SLIPPAGE_BPS = 300;
-/** Explicit gas for pay(): relay estimates miss HTS costs, and Hedera charges at least 80% of the limit. */
-export const PAY_GAS_LIMIT = 1_500_000n;
+/**
+ * Hedera bills at least 80% of a transaction's gas limit, so limits come from the relay's estimate plus 20%.
+ * On testnet a payment costs about 225k gas, or about 930k when HTS auto-associates USDC on the first payout.
+ */
+export const withGasHeadroom = (estimate: bigint) => (estimate * 120n) / 100n;
 
 export const INVOICE_PAID_EVENT = parseAbiItem(
   "event InvoicePaid(bytes32 indexed invoiceId, address indexed merchant, address indexed payer, uint256 hbarIn, uint256 usdcOut, uint256 oraclePrice, uint256 timestamp)",
@@ -75,10 +78,13 @@ export type Receipt = z.infer<typeof receiptSchema>;
 export type TopicReceipt = Receipt & { sequenceNumber: number; messageTimestamp: string };
 
 export type ReceiptsResponse = { network: HederaNetwork; topicId: string; receipts: TopicReceipt[] };
-/** POST /api/receipts result: 201 when this call wrote the message, 200 when the payment already had one. */
-export type RecordResult =
-  | { status: "exists"; topicId: string; receipt: TopicReceipt }
-  | { status: "recorded"; topicId: string; receipt: Receipt; sequenceNumber: number; transactionId: string };
+/** POST /api/receipts result: "recorded" (201) when this call wrote the message, "exists" (200) otherwise. */
+export type RecordResult = {
+  status: "recorded" | "exists";
+  topicId: string;
+  receipt: Receipt;
+  sequenceNumber: number;
+};
 export type ApiError = { error: { code: string; message: string } };
 /** GET /api/health. `contract` and `topicId` are null until deployed and configured. */
 export type Health = { ok: true; network: HederaNetwork; contract: string | null; topicId: string | null };

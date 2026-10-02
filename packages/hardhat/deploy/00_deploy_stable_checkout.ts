@@ -27,8 +27,8 @@ const deployStableCheckout: DeployFunction = async function (hre: HardhatRuntime
     ],
     log: true,
     autoMine: true,
-    // The relay's estimate does not cover the HTS association in the constructor.
-    gasLimit: 4_000_000,
+    // ~2.6M on testnet including the HTS association. Hedera bills at least 80% of the limit, so keep it close.
+    gasLimit: 3_000_000,
     gasPrice: await getDeployGasPrice(hre),
   });
 
