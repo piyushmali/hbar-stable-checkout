@@ -1,0 +1,22 @@
+name: hbar-stable-checkout-smoke
+# Runs after harness/validators/yarn.json, so the production build already exists.
+server:
+  command: yarn next:serve -p 3000
+  url: http://localhost:3000
+  timeoutMs: 120000
+defaults:
+  timeoutMs: 30000
+routes:
+  - name: home
+    path: /
+  - name: merchant
+    path: /merchant
+  - name: pay
+    path: /pay/0xabababababababababababababababababababababababababababababababab
+  - name: receipts
+    path: /receipts
+forbidden:
+  visibleText:
+    - Application error
+    - Unhandled Runtime Error
+    - Internal Server Error

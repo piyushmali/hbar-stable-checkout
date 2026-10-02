@@ -1,0 +1,17 @@
+{
+  "name": "hbar-stable-checkout-yarn",
+  "description": "The same gate CI runs on a fresh scaffold. Needs no secrets and no testnet access.",
+  "requiresNoSecrets": true,
+  "forbiddenCommands": ["npm install", "npm run", "pnpm install", "pnpm run"],
+  "commands": [
+    { "name": "install", "command": "yarn install", "timeoutMs": 600000, "purpose": "Install workspace dependencies." },
+    { "name": "lint", "command": "yarn lint", "timeoutMs": 300000, "purpose": "ESLint and Prettier for both packages." },
+    {
+      "name": "contract-tests",
+      "command": "yarn hardhat:test",
+      "timeoutMs": 300000,
+      "purpose": "Hermetic StableCheckout tests against the HTS, SaucerSwap and Chainlink mocks."
+    },
+    { "name": "build", "command": "yarn next:build", "timeoutMs": 600000, "purpose": "Production build with type checks." }
+  ]
+}

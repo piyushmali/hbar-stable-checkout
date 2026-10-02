@@ -80,6 +80,8 @@ export type RecordResult =
   | { status: "exists"; topicId: string; receipt: TopicReceipt }
   | { status: "recorded"; topicId: string; receipt: Receipt; sequenceNumber: number; transactionId: string };
 export type ApiError = { error: { code: string; message: string } };
+/** GET /api/health. `contract` and `topicId` are null until deployed and configured. */
+export type Health = { ok: true; network: HederaNetwork; contract: string | null; topicId: string | null };
 
 export const formatUsd6 = (amount: bigint) =>
   new Intl.NumberFormat("en-US", {

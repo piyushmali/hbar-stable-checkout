@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import type { NextPage } from "next";
+import type { Health } from "~~/utils/checkout";
 
 const REPO = "https://github.com/piyushmali/hbar-stable-checkout";
 
@@ -27,8 +28,6 @@ const DOCS = [
   { label: "Integration notes", href: `${REPO}#integration-notes` },
   { label: "Architecture", href: `${REPO}/blob/main/docs/architecture.md` },
 ];
-
-type Health = { ok: boolean; network: string; contract: string | null; topicId: string | null };
 
 const Home: NextPage = () => {
   const { data: health } = useQuery<Health>({

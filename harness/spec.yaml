@@ -1,0 +1,34 @@
+# hedera-harness recipe for this template (https://github.com/hedera-dev/hedera-harness).
+# Paths are relative to the project root, the parent of this directory.
+#
+#   npx hedera-harness@1.2.2 doctor harness/spec.yaml --recipe-only
+#   npx hedera-harness@1.2.2 validate harness/spec.yaml
+#
+# validate runs Tier 0-1 (files, static assertions, secret scan, yarn commands) and the Tier 2 Playwright
+# gate, which needs `playwright` installed (npm i -D playwright) and a local Chrome or Chromium.
+schemaVersion: 2
+name: hbar-stable-checkout
+description: >-
+  Accept HBAR, settle in USDC. StableCheckout swaps the customer's HBAR to USDC on SaucerSwap in the same
+  transaction, refuses pools that pay under a Chainlink HBAR/USD floor, and the app writes one HCS receipt
+  per payment after checking it against the mirror node.
+
+prd: harness/prd.md
+
+baseline:
+  commands:
+    - name: install
+      command: yarn install
+    - name: build
+      command: yarn next:build
+
+validators:
+  static: harness/validators/static.json
+  commands: harness/validators/yarn.json
+  playwright: harness/validators/playwright-smoke.yaml
+
+forbiddenFiles:
+  - .env
+  - packages/hardhat/.env
+  - packages/nextjs/.env
+  - packages/nextjs/.env.local

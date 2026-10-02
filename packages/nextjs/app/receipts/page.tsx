@@ -7,6 +7,7 @@ import { isAddress } from "viem";
 import { useAccount } from "wagmi";
 import {
   type ApiError,
+  type Health,
   type ReceiptsResponse,
   formatHbar,
   formatOraclePrice,
@@ -39,11 +40,17 @@ const ReceiptsPage: NextPage = () => {
   const { address } = useAccount();
   const [filterInput, setFilterInput] = useState("");
   const [merchant, setMerchant] = useState<string>();
+  const { data: health } = useQuery<Health>({
+    queryKey: ["health"],
+    queryFn: async () => (await fetch("/api/health")).json(),
+  });
+  const topicConfigured = Boolean(health?.topicId);
   const { data, error, isLoading } = useQuery<ReceiptsResponse, ReceiptsError>({
     queryKey: ["receipts", merchant],
     queryFn: () => fetchReceipts(merchant),
+    enabled: topicConfigured,
     refetchInterval: 15_000,
-    retry: (failures, failure) => failure.code !== "not_configured" && failures < 2,
+    retry: 2,
   });
 
   const applyFilter = (event: FormEvent) => {
@@ -115,18 +122,18 @@ const ReceiptsPage: NextPage = () => {
         )}
       </form>
 
-      {isLoading ? (
+      {health && !topicConfigured ? (
+        <div role="status" className="alert alert-warning">
+          <span>
+            No receipt topic is configured. Run <code>yarn hardhat:create-topic</code> and set <code>HCS_TOPIC_ID</code>{" "}
+            in <code>packages/nextjs/.env.local</code>.
+          </span>
+        </div>
+      ) : !health || isLoading ? (
         <span className="loading loading-dots" aria-label="Loading receipts" />
       ) : error ? (
-        <div role="alert" className={`alert ${error.code === "not_configured" ? "alert-warning" : "alert-error"}`}>
-          {error.code === "not_configured" ? (
-            <span>
-              No receipt topic is configured. Run <code>yarn hardhat:create-topic</code> and set{" "}
-              <code>HCS_TOPIC_ID</code> in <code>packages/nextjs/.env.local</code>.
-            </span>
-          ) : (
-            error.message
-          )}
+        <div role="alert" className="alert alert-error">
+          {error.message}
         </div>
       ) : data && data.receipts.length === 0 ? (
         <p className="m-0 opacity-80">No receipts{merchant ? " for this merchant" : ""} yet.</p>

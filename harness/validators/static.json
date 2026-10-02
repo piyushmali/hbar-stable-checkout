@@ -1,0 +1,63 @@
+{
+  "name": "hbar-stable-checkout-static",
+  "description": "Files, package layout and docs this template must keep. Paths are relative to the project root.",
+  "jsonAssertions": [
+    { "file": "package.json", "path": "packageManager", "equals": "yarn@3.2.3" },
+    { "file": "package.json", "path": "scripts.fork:test", "equals": "yarn workspace @sh/hardhat fork:test" },
+    { "file": "packages/hardhat/package.json", "path": "scripts.test", "equals": "hardhat test" }
+  ],
+  "fileAssertions": {
+    "required": [
+      "README.md",
+      "AGENTS.md",
+      "LICENSE",
+      "docs/architecture.md",
+      "packages/hardhat/contracts/StableCheckout.sol",
+      "packages/hardhat/contracts/interfaces/ISaucerSwapRouter.sol",
+      "packages/hardhat/contracts/interfaces/AggregatorV3Interface.sol",
+      "packages/hardhat/contracts/interfaces/IHederaTokenService.sol",
+      "packages/hardhat/config/hedera-testnet.ts",
+      "packages/hardhat/deploy/00_deploy_stable_checkout.ts",
+      "packages/hardhat/scripts/demo-pay.ts",
+      "packages/hardhat/scripts/create-topic.ts",
+      "packages/hardhat/test/StableCheckout.test.ts",
+      "packages/hardhat/test-fork/StableCheckout.fork.ts",
+      "packages/nextjs/app/api/receipts/route.ts",
+      "packages/nextjs/app/api/health/route.ts",
+      "packages/nextjs/app/merchant/page.tsx",
+      "packages/nextjs/app/pay/[invoiceId]/page.tsx",
+      "packages/nextjs/app/receipts/page.tsx",
+      "packages/hardhat/.env.example",
+      "packages/nextjs/.env.example"
+    ],
+    "forbidden": [
+      ".env",
+      "packages/hardhat/.env",
+      "packages/nextjs/.env",
+      "packages/nextjs/.env.local",
+      "packages/foundry"
+    ]
+  },
+  "textAssertions": [
+    {
+      "file": "README.md",
+      "contains": [
+        "npm create scaffold-hbar@latest -- --template piyushmali/hbar-stable-checkout",
+        "yarn hardhat:deploy --network hederaTestnet",
+        "yarn hardhat:create-topic",
+        "yarn hardhat:demo-pay",
+        "yarn fork:test",
+        "TOKEN_NOT_ASSOCIATED_TO_ACCOUNT",
+        "INSUFFICIENT_PAYER_BALANCE"
+      ]
+    },
+    {
+      "file": "AGENTS.md",
+      "contains": ["yarn hardhat:test", "hedera-skills", "harness/spec.yaml"]
+    },
+    {
+      "file": "packages/nextjs/.env.example",
+      "contains": ["HCS_TOPIC_ID=", "HEDERA_OPERATOR_ID=", "HEDERA_OPERATOR_KEY="]
+    }
+  ]
+}
