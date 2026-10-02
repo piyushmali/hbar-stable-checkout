@@ -1,0 +1,16 @@
+{
+  "name": "hbar-stable-checkout",
+  "description": "Accept HBAR, settle in USDC: SaucerSwap swap with a Chainlink price floor and HCS receipts on Hedera.",
+  "create-scaffold-hbar": {
+    "capabilities": {
+      "frontend": ["nextjs-app"],
+      "solidityFramework": ["hardhat"],
+      "packageManager": ["yarn"]
+    },
+    "defaults": {
+      "frontend": "nextjs-app",
+      "solidityFramework": "hardhat",
+      "packageManager": "yarn"
+    }
+  }
+}
