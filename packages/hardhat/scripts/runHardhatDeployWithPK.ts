@@ -12,8 +12,8 @@ async function main() {
   const networkIndex = process.argv.indexOf("--network");
   const networkName = networkIndex !== -1 ? process.argv[networkIndex + 1] : config.defaultNetwork;
 
-  if (networkName === "localhost" || networkName === "hardhat") {
-    // Deploy command on the localhost network
+  if (networkName === "localhost" || networkName === "hardhat" || process.env.DEPLOYER_PRIVATE_KEY) {
+    // Local networks need no key; a plain DEPLOYER_PRIVATE_KEY is read by hardhat.config.ts, so skip the prompt.
     const hardhat = spawn("hardhat", ["deploy", ...process.argv.slice(2)], {
       stdio: "inherit",
       env: process.env,

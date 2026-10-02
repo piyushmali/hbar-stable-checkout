@@ -1,29 +1,35 @@
 import * as dotenv from "dotenv";
 dotenv.config();
-
 import { HardhatUserConfig, task } from "hardhat/config";
 import "@nomicfoundation/hardhat-ethers";
 import "@nomicfoundation/hardhat-chai-matchers";
 import "@typechain/hardhat";
 import "hardhat-gas-reporter";
 import "solidity-coverage";
-// Only load the Hedera forking plugin when starting the local node (yarn hardhat:chain / yarn hardhat:fork).
-// Deploying to an already-running node doesn't need it and would fail with EADDRINUSE.
-if (process.env.HEDERA_FORKING === "true") {
+
+// Forking is opt-in. `yarn hardhat:chain` forks testnet, `yarn hardhat:fork` and `yarn fork:test` fork mainnet.
+// Plain `yarn hardhat:test` stays hermetic: no RPC calls, HTS/SaucerSwap/Chainlink are the mocks in contracts/mocks.
+const hederaForking = process.env.HEDERA_FORKING === "true";
+if (hederaForking) {
+  // Emulates the HTS system contract at 0x167 on the fork, reading token state from the mirror node.
   // eslint-disable-next-line @typescript-eslint/no-require-imports -- conditional plugin load
   require("@hashgraph/system-contracts-forking/plugin");
 }
 import "hardhat-deploy";
 import "hardhat-deploy-ethers";
-
 import generateTsAbis from "./scripts/generateTsAbis";
 
-// Hedera JSON-RPC URL (testnet default). Set HEDERA_RPC_URL in .env for mainnet.
-const hederaRpcUrl = process.env.HEDERA_RPC_URL || "https://testnet.hashio.io/api";
+const fork =
+  process.env.MAINNET_FORKING_ENABLED === "true"
+    ? { url: process.env.HEDERA_MAINNET_RPC_URL || "https://mainnet.hashio.io/api", chainId: 295 }
+    : { url: process.env.HEDERA_RPC_URL || "https://testnet.hashio.io/api", chainId: 296 };
 
-// Deployer key: run `yarn account:generate` or `yarn account:import`, or set __RUNTIME_DEPLOYER_PRIVATE_KEY at runtime.
+// Deployer key: DEPLOYER_PRIVATE_KEY in .env (ECDSA, 0x-prefixed), or the encrypted key from `yarn account:generate`,
+// decrypted at deploy time into __RUNTIME_DEPLOYER_PRIVATE_KEY. Falls back to Hardhat's first dev account.
 const deployerPrivateKey =
-  process.env.__RUNTIME_DEPLOYER_PRIVATE_KEY ?? "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
+  process.env.__RUNTIME_DEPLOYER_PRIVATE_KEY ||
+  process.env.DEPLOYER_PRIVATE_KEY ||
+  "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
 
 const config: HardhatUserConfig = {
   solidity: {
@@ -46,24 +52,29 @@ const config: HardhatUserConfig = {
     },
   },
   networks: {
-    hardhat: {
-      forking: {
-        url: hederaRpcUrl,
-        // @ts-expect-error - custom property for hedera-forking plugin
-        chainId: 296,
-        workerPort: 10001,
-      },
-    },
+    hardhat: hederaForking
+      ? {
+          forking: {
+            url: fork.url,
+            // @ts-expect-error - custom properties read by the hedera-forking plugin
+            chainId: fork.chainId,
+            workerPort: 10001,
+          },
+        }
+      : {},
     hederaTestnet: {
-      url: "https://testnet.hashio.io/api",
+      url: process.env.HEDERA_RPC_URL || "https://testnet.hashio.io/api",
       accounts: [deployerPrivateKey],
       chainId: 296,
     },
     hederaMainnet: {
-      url: "https://mainnet.hashio.io/api",
+      url: process.env.HEDERA_MAINNET_RPC_URL || "https://mainnet.hashio.io/api",
       accounts: [deployerPrivateKey],
       chainId: 295,
     },
+  },
+  gasReporter: {
+    enabled: process.env.REPORT_GAS === "true",
   },
   // Contract verification: use `yarn verify:contract` (scripts/verifySourcify.ts), which talks
   // directly to the Sourcify API v2. @nomicfoundation/hardhat-verify is intentionally not used:
