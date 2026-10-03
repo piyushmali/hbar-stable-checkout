@@ -17,19 +17,10 @@ import {
   mirrorTopicMessageUrl,
 } from "~~/utils/checkout";
 
-class ReceiptsError extends Error {
-  constructor(
-    readonly code: string,
-    message: string,
-  ) {
-    super(message);
-  }
-}
-
 async function fetchReceipts(merchant?: string): Promise<ReceiptsResponse> {
   const response = await fetch(`/api/receipts${merchant ? `?merchant=${merchant}` : ""}`);
   const body = (await response.json()) as ReceiptsResponse | ApiError;
-  if ("error" in body) throw new ReceiptsError(body.error.code, body.error.message);
+  if ("error" in body) throw new Error(body.error.message);
   return body;
 }
 
@@ -45,7 +36,7 @@ const ReceiptsPage: NextPage = () => {
     queryFn: async () => (await fetch("/api/health")).json(),
   });
   const topicConfigured = Boolean(health?.topicId);
-  const { data, error, isLoading } = useQuery<ReceiptsResponse, ReceiptsError>({
+  const { data, error, isLoading } = useQuery<ReceiptsResponse>({
     queryKey: ["receipts", merchant],
     queryFn: () => fetchReceipts(merchant),
     enabled: topicConfigured,

@@ -11,16 +11,21 @@ permissions:
 
 jobs:
   scaffold-gate:
-    name: Fresh scaffold gate
+    name: Fresh scaffold gate (Node ${{ matrix.node }})
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        # The bounty's minimum Node version, and the current LTS.
+        node: ["20.18.3", "22"]
     env:
       # The judges' command, pointed at the commit under test. Pull requests use their head branch.
       TEMPLATE: ${{ github.event.pull_request.head.repo.full_name || github.repository }}#${{ github.head_ref || github.ref_name }}
     steps:
       - uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version: ${{ matrix.node }}
 
       - name: Git identity for the CLI's initial commit
         run: |
